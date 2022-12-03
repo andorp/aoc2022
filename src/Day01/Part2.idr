@@ -1,5 +1,6 @@
 module Day01.Part2
 
+import IsTrue
 import Data.DPair
 import Data.List.Quantifiers
 
@@ -13,16 +14,6 @@ carries = sum
 public export
 Calories : Type
 Calories = List Snacks
-
-||| Check for True evaluation.
-|||
-||| This is a little helper to bring knowlege into the constructive proofs about '<' and '>='
-data IsTrue : Bool -> Type where
-  YesTrueIs : IsTrue True
-
-||| When something evaluates to True, it is also IsTrue
-isTrueR : x === True -> IsTrue x
-isTrueR Refl = YesTrueIs
 
 ||| The relation between the Top3 Calories.
 |||
