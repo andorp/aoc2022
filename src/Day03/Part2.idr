@@ -9,7 +9,7 @@ import Data.SortedSet
 -- Check the set for the rucksack for common item, there must be one
 -- summarize the priorities of the 3 items
 
-itemSet : Rucksack -> SortedSet ValidItem
+itemSet : Rucksack -> SortedSet Item
 itemSet sack =
   SortedSet.union
     (SortedSet.fromList (toList sack.compartment1))

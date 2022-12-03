@@ -8,7 +8,7 @@ import Data.List
 
 
 partial
-findError : Rucksack -> ValidItem
+findError : Rucksack -> Item
 findError sack
   = unsafeHead
   $ SortedSet.toList

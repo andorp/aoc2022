@@ -9,55 +9,49 @@ import Data.DPair
 -- Read the rucksack to two sets, get the intersection of the set.
 
 public export
-Item : Type
-Item = Char
-
-||| Make sure that any complicated computation is erased.
-data Erase : Type -> Type where
-  MkErase : (0 _ : t) -> Erase t
+RawItem : Type
+RawItem = Char
 
 export
-data ValidItemIdx : Item -> Type where
-  MkValidItem : {i : Item} -> Either (Erase (IsTrue (isUpper i))) (Erase (IsTrue (isLower i))) -> ValidItemIdx i
+data Item : Type where
+  Upper : (i : RawItem) -> (0 _ : IsTrue (isUpper i)) -> Item
+  Lower : (i : RawItem) -> (0 _ : IsTrue (isLower i)) -> Item
+
+getRawItem : Item -> RawItem
+getRawItem (Upper i x) = i
+getRawItem (Lower i x) = i
 
 export
-ValidItem : Type
-ValidItem = Exists ValidItemIdx
+Eq Item where
+  a == b = getRawItem a == getRawItem b
 
 export
-Eq ValidItem where
-  (Evidence _ (MkValidItem {i=a} _)) == (Evidence _ (MkValidItem {i=b} _)) = a == b
+Ord Item where
+  compare a b = compare (getRawItem a) (getRawItem b)
 
 export
-Ord ValidItem where
-  compare (Evidence _ (MkValidItem {i=a} _)) (Evidence _ (MkValidItem {i=b} _)) = compare a b
-
-export
-mkValidItem : Item -> Maybe ValidItem
+mkValidItem : RawItem -> Maybe Item
 mkValidItem c with (isUpper c) proof pu
-  _ | True = Just (Evidence c (MkValidItem (Left (MkErase (isTrueR pu)))))
+  _ | True = Just (Upper c (isTrueR pu))
   _ | False with (isLower c) proof pl
-    _ | True = Just (Evidence c (MkValidItem (Right (MkErase (isTrueR pl)))))
+    _ | True = Just (Lower c (isTrueR pl))
     _ | False = Nothing
-
-getItem : ValidItem -> Item
-getItem (Evidence i (MkValidItem {i} _)) = i
 
 public export
 record Rucksack where
   constructor MkRucksack
   size         : Nat
-  compartment1 : Vect size ValidItem
-  compartment2 : Vect size ValidItem
+  compartment1 : Vect size Item
+  compartment2 : Vect size Item
 
 export
 Show Rucksack where
-  show (MkRucksack _ comp1 comp2) = fastPack (map getItem (toList comp1) ++ map getItem (toList comp2))
+  show (MkRucksack _ comp1 comp2) = fastPack (map getRawItem (toList comp1) ++ map getRawItem (toList comp2))
 
 export
-priority : ValidItem -> Int
-priority (Evidence c (MkValidItem (Left isUpper)))  = ord c - 65 + 27
-priority (Evidence c (MkValidItem (Right isLower))) = ord c - 97 + 1
+priority : Item -> Int
+priority (Upper i x) = ord i - 65 + 27
+priority (Lower i x) = ord i - 97 + 1
 
 example1 : IO ()
 example1 = do
