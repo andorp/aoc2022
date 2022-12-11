@@ -1,6 +1,6 @@
 module Day03.Domain
 
-import IsTrue
+import Data.So
 import Data.Vect
 import Data.DPair
 
@@ -14,8 +14,8 @@ RawItem = Char
 
 export
 data Item : Type where
-  Upper : (i : RawItem) -> (0 _ : IsTrue (isUpper i)) -> Item
-  Lower : (i : RawItem) -> (0 _ : IsTrue (isLower i)) -> Item
+  Upper : (i : RawItem) -> (0 _ : So (isUpper i)) -> Item
+  Lower : (i : RawItem) -> (0 _ : So (isLower i)) -> Item
 
 getRawItem : Item -> RawItem
 getRawItem (Upper i x) = i
@@ -32,9 +32,9 @@ Ord Item where
 export
 mkValidItem : RawItem -> Maybe Item
 mkValidItem c with (isUpper c) proof pu
-  _ | True = Just (Upper c (isTrueR pu))
+  _ | True = Just (Upper c (eqToSo pu))
   _ | False with (isLower c) proof pl
-    _ | True = Just (Lower c (isTrueR pl))
+    _ | True = Just (Lower c (eqToSo pl))
     _ | False = Nothing
 
 public export

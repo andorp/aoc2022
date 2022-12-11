@@ -12,5 +12,6 @@ read1 = map parse . lines
     getSections : List Int -> ((Int,Int),(Int,Int))
     getSections [a,b,c,d] = ((a,b),(c,d))
 
+    partial
     parse : String -> ((Int,Int),(Int,Int))
     parse = getSections . toList . map (cast . fastPack) . split (not . isDigit) . fastUnpack
