@@ -2,10 +2,11 @@ module Main
 
 import System.File.ReadWrite
 
-import Day10.Input
-import Day10.Domain
-import Day10.Part1
-import Day10.Part2
+import Day11.TestInput
+import Day11.Input
+import Day11.Domain
+import Day11.Part1
+import Day11.Part2
 import Partial
 
 partial
@@ -23,9 +24,9 @@ main = do
   -- putStrLn "Part2 test: \{show !(part2 (Input.read testInput))}"
 
   -- let inp = Input.read contents
-  let prg = input
-  putStrLn "Part1: \{show !(part1 prg)}"
-  putStrLn "Part2:"
-  part2 prg
+  -- putStrLn "Part1: \{show !(part1 Input.monkeys)}"
+  putStrLn "Part2: \{show !(part2 TestInput.monkeys)}"
+  -- putStrLn "Part2:"
+  -- part2 prg
   pure ()
 
