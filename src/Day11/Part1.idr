@@ -1,6 +1,6 @@
 module Day11.Part1
 
-import Day11.Domain
+import Day11.Domain1
 import Data.Vect
 
 decreaseWorry : WorryChange
