@@ -1,13 +1,12 @@
 module Dijkstra.Version3
 
 import Data.List
+import Data.List1
 import Data.Fin
 import Data.Nat
 import Data.SortedMap
 import Syntax.PreorderReasoning
 import Syntax.PreorderReasoning.Generic
-import Control.Function
-import Control.Relation
 import Data.DPair
 
 
@@ -180,4 +179,3 @@ findMinPath d0 s sp with (d0.queue) proof p
         ~~ length (q :: qs)       ... (cong length p)
         ~~ S (length qs)          ... (Refl)
         ~~ S k                    ... (sp)
-

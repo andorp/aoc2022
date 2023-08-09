@@ -11,60 +11,7 @@ import Syntax.PreorderReasoning
 import Syntax.PreorderReasoning.Generic
 import Data.DPair
 import Decidable.Equality
-
-namespace List
-
-  public export
-  data Permutation : (xs, ys : List a) -> Type where
-    Refl  : Permutation xs xs
-    Prep  : Permutation xs ys -> Permutation (x :: xs)      (x :: ys)
-    Swap  : Permutation xs ys -> Permutation (x :: y :: xs) (y :: x :: ys)
-    Trans : Permutation xs ys -> Permutation ys zs -> Permutation xs zs
-
-  trans : Permutation xs ys -> Permutation ys zs -> Permutation xs zs
-  trans Refl q = q
-  trans p Refl = p
-  trans p q = Trans p q
-
-  -- Id function, it should be optimized away
-  sym : Permutation xs ys -> Permutation ys xs
-  sym Refl        = Refl
-  sym (Prep x)    = Prep (sym x)
-  sym (Swap x)    = Swap (sym x)
-  sym (Trans x y) = Trans (sym y) (sym x)
-
-  public export Reflexive   (List a) Permutation where reflexive  = Refl
-  public export Transitive  (List a) Permutation where transitive = trans
-  public export Symmetric   (List a) Permutation where symmetric  = sym
-  public export Equivalence (List a) Permutation where
-  public export Preorder    (List a) Permutation where
-
-permutationLemma1 : {v:a} -> {rs : List a} -> (vs : List a) -> Permutation (v :: (vs ++ rs)) (vs ++ (v :: rs))
-permutationLemma1 [] = Refl
-permutationLemma1 (x :: xs) = CalcWith {leq=Permutation} $ 
-  |~ (v :: (x :: (xs ++ rs)))
-  <~ (x :: (v :: (xs ++ rs))) ... (Swap Refl)
-  <~ (x :: (xs ++ (v :: rs))) ... (Prep (permutationLemma1 _))
-
-permutationLemma2 : {c,v:a} -> {vs,rs : List a} -> Permutation (c :: (v :: (vs ++ rs))) (c :: (vs ++ (v :: rs)))
-permutationLemma2 = CalcWith {leq=Permutation} $
-  |~ (c :: (v :: (vs ++ rs)))
-  <~ (c :: (vs ++ (v :: rs))) ... (Prep (permutationLemma1 _))
-
-permutationLemma3 : {c,v:a} -> {vs,rs : List a} -> Permutation (c :: (v :: (vs ++ rs))) (v :: (vs ++ (c :: rs)))
-permutationLemma3 = CalcWith {leq=Permutation} $
-  |~ (c :: (v :: (vs ++ rs)))
-  <~ (v :: (c :: (vs ++ rs))) ... (Swap Refl)
-  <~ (v :: (vs ++ (c :: rs))) ... (Prep (permutationLemma1 _))
-
-permutationKeepsLength : Permutation as bs -> (length as === length bs)
-permutationKeepsLength Refl = Refl
-permutationKeepsLength (Prep x) = cong S (permutationKeepsLength x)
-permutationKeepsLength (Swap x) = cong (S . S) (permutationKeepsLength x)
-permutationKeepsLength (Trans {ys} x y) = Calc $
-  |~ length as
-  ~~ length ys ... (permutationKeepsLength x)
-  ~~ length bs ... (permutationKeepsLength y)
+import Dijkstra.Permutation
 
 
 Vertex : (n : Nat) -> Type
@@ -263,24 +210,24 @@ findMinDistAndRemove (SearchData neighbours start paths (c0 :: cs0)) IsNonEmpty 
       -- Inifity distance, not candidate, keep the candidate
       _ | Nothing with (d) proof p2
         _ | Nothing  = go c d (transitive dOk (sym p2)) vs (v :: rs)
-                          (transitive per permutationLemma2)
+                          (transitive per secondMovesInside)
                           (infinities :: rsOk)
         _ | Just vd' = go c d (transitive dOk (sym p2)) vs (v :: rs)
-                          (transitive per permutationLemma2)
+                          (transitive per secondMovesInside)
                           (lessThanInfinity :: rsOk)
       _ | Just vd with (d) proof p2
         -- x distance is smaller than infinity, replace candidate with x
         _ | Nothing = go v (Just vd) p1 vs (c :: rs)
-                         (transitive per permutationLemma3)
+                         (transitive per firstMovesNonEmptyInside)
                          (lessThanInfinity :: mapProperty (Transitive lessThanInfinity) rsOk)
         _ | Just vd' with (vd < vd') proof p3
           -- x distance is smaller than infinity, replace candidate with x
           _ | True = go v (Just vd) p1 vs (c :: rs)
-                        (transitive per permutationLemma3)
+                        (transitive per firstMovesNonEmptyInside)
                         (lessThan :: mapProperty (Transitive lessThan) rsOk)
           -- c distance is smaller, keep the candidate
           _ | False = go c d (transitive dOk (sym p2)) vs (v :: rs)
-                         (transitive per permutationLemma2)
+                         (transitive per secondMovesInside)
                          (notLessThan2nd :: rsOk)
 
 init :
